@@ -1,14 +1,12 @@
-import React from 'react';
-import './App.css';
+import "./App.css";
+import Ticker from "./components/ticker/ticker";
+import OrderTable from "./components/orderTable/orderTable";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </header>
+      <Ticker />
+      <OrderTable />
     </div>
   );
 }

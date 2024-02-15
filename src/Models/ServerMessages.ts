@@ -1,4 +1,4 @@
-import {Instrument, OrderStatus} from "../Enums";
+import {Instrument, OrderStatus} from "../constants/Enums";
 import {Envelope, Message, Quote} from "./Base";
 
 export interface ServerEnvelope extends Envelope {

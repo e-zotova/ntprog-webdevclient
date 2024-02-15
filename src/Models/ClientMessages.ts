@@ -1,5 +1,5 @@
 import {Envelope, Message} from "./Base";
-import {ClientMessageType, Instrument, OrderSide} from "../Enums";
+import {ClientMessageType, Instrument, OrderSide} from "../constants/Enums";
 import Decimal from "decimal.js";
 
 export interface ClientEnvelope extends Envelope {
