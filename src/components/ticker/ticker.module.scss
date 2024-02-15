@@ -1,0 +1,84 @@
+.ticker {
+  display: flex;
+  overflow-x: auto;
+  min-width: 370px;
+  max-width: 100%;
+  border-radius: 4px;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 20px;
+  background-color: #282c34;
+
+  &__form {
+    display: flex;
+    min-width: 350px;
+    padding: 20px;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.dropdown {
+  padding: 8px;
+  font-size: 24px;
+  border-radius: 4px;
+  border: none;
+  text-align: center;
+  background-color: #3c3f46;
+  color: #fff;
+}
+
+.option {
+  background-color: #3c3f46;
+}
+
+.amount {
+  padding: 8px;
+  font-size: 24px;
+  border-radius: 4px;
+  border: none;
+  text-align: center;
+  background-color: #3c3f46;
+  color: #fff;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+}
+
+.prices {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 20px;
+
+  &__current {
+    font-size: 32px;
+    font-weight: 900;
+    padding-bottom: 20px;
+  }
+}
+
+.button {
+  font-size: 24px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 10px 30px;
+  border: none;
+  color: #fff;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &__sell {
+    background-color: rgba(255, 0, 0, 0.8);
+  }
+
+  &__buy {
+    background-color: rgba(0, 255, 0, 0.8);
+  }
+}
