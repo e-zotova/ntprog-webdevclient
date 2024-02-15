@@ -1,20 +1,30 @@
+import { columns } from "../../constants/constants";
+import styles from "./orderTable.module.scss";
 
-const OrderTable = ({ rowData = []}) => {
+const OrderTable = ({ rowData = [] }) => {
   return (
-    <div>
-      <table>
-        <thead>
-          <tr>
-          </tr>
-        </thead>
-        <tbody>
-          {rowData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-            </tr>
+    <table className={styles.orderTable}>
+      <thead>
+        <tr>
+          {columns.map((column, index) => (
+            <th key={index}>{column.label}</th>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </tr>
+      </thead>
+      <tbody>
+        {rowData.length === 0 ? (
+          <td colSpan={columns.length}>No data</td>
+        ) : (
+          columns.map((column, columnIndex) => (
+            <tr key={columnIndex}>
+              {rowData.map((row, rowIndex) => (
+                <td key={rowIndex}>{row[column.label]}</td>
+              ))}
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
   );
 };
 
