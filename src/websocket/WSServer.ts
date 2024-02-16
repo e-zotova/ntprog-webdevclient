@@ -1,12 +1,14 @@
 import { Server, Client } from "mock-socket";
-import { getCurrencyData } from "../constants/currency";
+import  CurrencyDataManager from "../components/helpers/currencyDataManager";
 
 export default class MockWSServer {
   private mockServer: Server;
+  private currencyDataManager: CurrencyDataManager;
 
   constructor() {
     this.mockServer = new Server("ws://localhost:3000/ws");
     this.mockServer.on("connection", this.handleConnection.bind(this));
+    this.currencyDataManager = new CurrencyDataManager();
   }
 
   private handleConnection(socket: Client): void {
@@ -21,7 +23,7 @@ export default class MockWSServer {
         if (data && data.message.instrument) {
           const instrumentValue = data.message.instrument;
 
-          const currencyData = getCurrencyData(instrumentValue);
+          const currencyData = this.currencyDataManager.getCurrencyData(instrumentValue);
           if (currencyData) {
               const response = {
                 instrument: instrumentValue,
