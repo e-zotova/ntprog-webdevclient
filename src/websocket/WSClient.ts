@@ -1,7 +1,7 @@
 import {ClientMessage} from "../Models/ClientMessages";
 import {ClientMessageType, Instrument, OrderSide, ServerMessageType} from "../constants/Enums";
 import Decimal from "decimal.js";
-import {ServerEnvelope} from "../Models/ServerMessages";
+import {ServerEnvelope, MarketDataUpdate} from "../Models/ServerMessages";
 
 export default class WSClient {
   connection: WebSocket | undefined;
@@ -18,25 +18,25 @@ export default class WSClient {
       this.connection = undefined;
     };
 
-    this.connection.onerror = () => {
-      console.log('Connection error');
+    this.connection.onerror = (err) => {
+      console.log('Connection error:', err);
     };
 
     this.connection.onopen = () => {
       console.log('Connected!');
       console.log('Connection state:', this.connection?.readyState);
-      this.connection?.send(JSON.stringify({ message: "Hello, client!" }));
+      this.connection?.send(JSON.stringify({ message: "Hello, server!" }));
+      this.getOrders();
     };
 
     this.connection.onmessage = (event) => {
-      console.log('Received message:', event.data);
       const message: ServerEnvelope = JSON.parse(event.data);
       switch (message.messageType) {
         case ServerMessageType.success:
           console.log('Success');
           break;
         case ServerMessageType.error:
-          console.log('Error');
+          console.log('Error:', message.message);
           break;
         case ServerMessageType.executionReport:
           console.log('Execution report');
@@ -85,5 +85,12 @@ export default class WSClient {
         price,
       }
     });
+  }
+
+  getOrders = () => {
+    this.send({
+      messageType: ClientMessageType.getOrders,
+      message: {}
+    })
   }
 }

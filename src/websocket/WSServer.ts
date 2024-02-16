@@ -18,15 +18,16 @@ export default class MockWSServer {
         console.log('Mock server received message:', message);
 
         const data = JSON.parse(message);
-        console.log('Received data:', data);
-        if (data && data.instrument) {
-          const instrumentValue = data.instrument;
-          console.log('Instrument:', instrumentValue);
+        if (data && data.message.instrument) {
+          const instrumentValue = data.message.instrument;
 
           const currencyData = getCurrencyData(instrumentValue);
-          console.log('Currency data:', currencyData);
           if (currencyData) {
-            socket.send(JSON.stringify(currencyData));
+              const response = {
+                instrument: instrumentValue,
+                currencyData: currencyData
+              };
+              socket.send(JSON.stringify(response));
           } else {
             socket.send(JSON.stringify({ error: 'Invalid instrument' }));
           }
