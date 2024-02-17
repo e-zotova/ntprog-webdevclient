@@ -3,7 +3,7 @@ export interface CurrencyData {
   sell: number;
 }
 
-const INTERVAL = 1000;
+const INTERVAL = 1700;
 
 export default class CurrencyDataManager {
   private currencyData: { [key: string]: CurrencyData } = {};

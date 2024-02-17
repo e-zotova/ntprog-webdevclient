@@ -6,9 +6,7 @@ import Decimal from "decimal.js";
 
 const Ticker = () => {
   const instrumentKeys = Object.keys(Instrument).filter((key) => isNaN(Number(key)));
-  const [selectedInstrument, setSelectedInstrument] = useState<Instrument | "">(
-    ""
-  );
+  const [selectedInstrument, setSelectedInstrument] = useState<Instrument | "">(1 || "");
   const [amount, setAmount] = useState<Decimal | null>(null);
   const [currency, setCurrency] = useState<{ buy: Decimal; sell: Decimal }>({
     buy: new Decimal(0),
@@ -19,10 +17,10 @@ const Ticker = () => {
   const socket = useWebSocket();
 
   useEffect(() => {
-    if (instrumentKeys.length > 0) {
-      setSelectedInstrument(Instrument[instrumentKeys[0] as keyof typeof Instrument]);
+    if (socket?.connection && selectedInstrument) {
+      socket.subscribeMarketData(selectedInstrument);
     }
-  }, [instrumentKeys]);
+  }, [socket, selectedInstrument, currency]);
 
   useEffect(() => {
     if (socket?.connection) {
@@ -39,10 +37,6 @@ const Ticker = () => {
       };
 
       socket.connection.addEventListener("message", handleMessage);
-
-      if (selectedInstrument) {
-        socket.subscribeMarketData(selectedInstrument);
-      }
 
       return () => {
         socket.connection?.removeEventListener("message", handleMessage);
@@ -95,7 +89,7 @@ const Ticker = () => {
           type="number"
           className={styles.amount}
           placeholder="Enter amount"
-          min={0}
+          min="0"
           value={amount !== null ? amount.toString() : ""}
           onChange={(e) => {
             const newValue = e.target.value;
@@ -108,15 +102,27 @@ const Ticker = () => {
           onBlur={() => setTouched(true)}
         />
 
-        {touched && amount && amount.eq(0) && (
-          <p style={{ color: "red" }}>Value must be greater than 0</p>
-        )}
+        <div className={styles.errorContainer}>
+          {amount && amount.lessThanOrEqualTo(0) && (
+            <p className={styles.error}>Amount must be greater than 0</p>
+          )}
+        </div>
 
-        <div className={styles.prices}>
-          <div>
-            <div className={styles.prices__current}>
-              {currency.sell.toString()}
+        <div>
+          <div className={styles.prices}>
+            <div>
+              <div className={styles.prices__current}>
+                {currency.sell.toString()}
+              </div>
             </div>
+            <div>
+              <div className={styles.prices__current}>
+                {currency.buy.toString()}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.buttons}>
             <button
               type="submit"
               className={`${styles.button} ${styles.button__sell}`}
@@ -125,17 +131,13 @@ const Ticker = () => {
             >
               Sell
             </button>
-          </div>
-          <div>
-            <div className={styles.prices__current}>
-              {currency.buy.toString()}
-            </div>
+
             <button
               type="submit"
               className={`${styles.button} ${styles.button__buy}`}
               onClick={(e) => handleClick(e, OrderSide.buy)}
               disabled={!amount || amount.eq(0)}
-              >
+            >
               Buy
             </button>
           </div>
