@@ -1,7 +1,7 @@
 import {ClientMessage} from "../Models/ClientMessages";
-import {ClientMessageType, Instrument, OrderSide, ServerMessageType} from "../constants/Enums";
-import Decimal from "decimal.js";
-import {ServerEnvelope, MarketDataUpdate} from "../Models/ServerMessages";
+import {ClientMessageType, Instrument, ServerMessageType} from "../constants/Enums";
+import {ServerEnvelope} from "../Models/ServerMessages";
+import {PlaceOrder} from "../Models/ClientMessages";
 
 export default class WSClient {
   connection: WebSocket | undefined;
@@ -25,8 +25,6 @@ export default class WSClient {
     this.connection.onopen = () => {
       console.log('Connected!');
       console.log('Connection state:', this.connection?.readyState);
-      this.connection?.send(JSON.stringify({ message: "Hello, server!" }));
-      this.getOrders();
     };
 
     this.connection.onmessage = (event) => {
@@ -75,22 +73,12 @@ export default class WSClient {
     });
   }
 
-  placeOrder = (instrument: Instrument, side: OrderSide, amount: Decimal, price: Decimal) => {
+  placeOrder = (order: PlaceOrder) => {
     this.send({
       messageType: ClientMessageType.placeOrder,
       message: {
-        instrument,
-        side,
-        amount,
-        price,
+        ...order
       }
     });
-  }
-
-  getOrders = () => {
-    this.send({
-      messageType: ClientMessageType.getOrders,
-      message: {}
-    })
   }
 }
