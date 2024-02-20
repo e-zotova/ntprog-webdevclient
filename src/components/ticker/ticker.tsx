@@ -1,68 +1,96 @@
 import { useState, useEffect } from "react";
-import { useWebSocket } from "../../websocket/WSProvider";
+import { useDispatch, useSelector } from "react-redux";
+import WSClient from "../../websocket/WSClient";
 import styles from "./ticker.module.scss";
 import { Instrument, OrderSide } from "../../constants/Enums";
+import { addOrder } from "../../redux/slices/orders";
+import { setSelectedInstrument } from "../../redux/slices/selectedInstrument";
 import Decimal from "decimal.js";
+import { TickerData } from "../../App";
+import { RootState } from "../../redux/store";
 
-const Ticker = () => {
-  const instrumentKeys = Object.keys(Instrument).filter((key) => isNaN(Number(key)));
-  const [selectedInstrument, setSelectedInstrument] = useState<Instrument | "">(1 || "");
-  const [amount, setAmount] = useState<Decimal | null>(null);
+const Ticker = ({
+  socket,
+  tickerData,
+}: {
+  socket: WSClient | null;
+  tickerData: TickerData;
+}) => {
+  const dispatch = useDispatch();
+
+  const instrumentKeys = Object.keys(Instrument).filter((key) =>
+    isNaN(Number(key))
+  );
+
+  const initialSelectedInstrument = useSelector(
+    (state: RootState) => Instrument.eur_usd || state.selectedInstrument
+  );
+  const [instrument, setInstrument] = useState(initialSelectedInstrument);
+
+  const [amountValue, setAmountValue] = useState<Decimal | null>(null);
   const [currency, setCurrency] = useState<{ buy: Decimal; sell: Decimal }>({
     buy: new Decimal(0),
     sell: new Decimal(0),
   });
-  const [touched, setTouched] = useState(false);
 
-  const socket = useWebSocket();
-
-  useEffect(() => {
-    if (socket?.connection && selectedInstrument) {
-      socket.subscribeMarketData(selectedInstrument);
-    }
-  }, [socket, selectedInstrument, currency]);
+  const [orderId, setOrderId] = useState<number>(() => {
+    const storedOrderId = localStorage.getItem("orders[orders.length].id");
+    return storedOrderId ? parseInt(storedOrderId) : 1;
+  });
 
   useEffect(() => {
-    if (socket?.connection) {
-      const handleMessage = (event: MessageEvent) => {
-        try {
-          const data = JSON.parse(event.data);
+    localStorage.setItem("orders[orders.length].id", orderId.toString());
+  }, [orderId]);
+  
 
-          if (data && data.currencyData) {
-            setCurrency(data.currencyData);
-          }
-        } catch (error) {
-          console.error("Error parsing message data:", error);
-        }
-      };
-
-      socket.connection.addEventListener("message", handleMessage);
-
-      return () => {
-        socket.connection?.removeEventListener("message", handleMessage);
-      };
+  useEffect(() => {
+    if (tickerData && tickerData.quotes) {
+      const { bid, offer } = tickerData.quotes;
+      setCurrency((prevCurrency) => ({
+        ...prevCurrency,
+        sell: new Decimal(bid),
+        buy: new Decimal(offer),
+      }));
     }
-  }, [socket, selectedInstrument, currency]);
+  }, [tickerData]);
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedInstrument(parseInt(event.target.value));
+    const selectedInstrumentValue = parseInt(event.target.value);
+    dispatch(setSelectedInstrument(instrument));
+    setInstrument(selectedInstrumentValue);
+
   };
+
+  useEffect(() => {
+      setInstrument(instrument);
+      socket?.subscribeMarketData(instrument);
+    }, [socket, setInstrument, instrument]);
 
   const handleClick = (
     evt: React.MouseEvent<HTMLButtonElement>,
     orderSide: OrderSide
   ) => {
     evt.preventDefault();
-    if (selectedInstrument && amount?.greaterThan(0) && socket) {
-      socket.placeOrder(
-        selectedInstrument,
-        orderSide,
-        amount,
-        orderSide === OrderSide.buy
-          ? new Decimal(currency.buy)
-          : new Decimal(currency.sell)
-      );
+
+    const newOrder = {
+      id: orderId,
+      creationDate: new Date().toLocaleString(),
+      updatedDate: "",
+      orderStatus: 1,
+      side: orderSide,
+      price: orderSide === OrderSide.sell ? currency.sell.toString() : currency.buy.toString(),
+      amount: (amountValue ?? new Decimal(0)).toString(),
+      instrument: instrument,
+    };
+
+    if (socket?.connection) {
+      socket.placeOrder({
+        ...newOrder,
+        price: new Decimal(newOrder.price),
+      });
     }
+    setOrderId(orderId + 1);
+    dispatch(addOrder(newOrder));
   };
 
   return (
@@ -72,7 +100,7 @@ const Ticker = () => {
         <select
           id="dropdown"
           className={styles.dropdown}
-          value={selectedInstrument}
+          value={instrument}
           onChange={handleSelectChange}
         >
           {instrumentKeys.map((key) => (
@@ -90,20 +118,19 @@ const Ticker = () => {
           className={styles.amount}
           placeholder="Enter amount"
           min="0"
-          value={amount !== null ? amount.toString() : ""}
+          value={amountValue !== null ? amountValue.toString() : ""}
           onChange={(e) => {
             const newValue = e.target.value;
-            if (newValue === "") {
-              setAmount(null);
+            if (newValue === "" || parseFloat(newValue) < 0) {
+              setAmountValue(null);
             } else {
-              setAmount(new Decimal(newValue));
+              setAmountValue(new Decimal(newValue));
             }
           }}
-          onBlur={() => setTouched(true)}
         />
 
         <div className={styles.errorContainer}>
-          {amount && amount.lessThanOrEqualTo(0) && (
+          {amountValue?.lessThanOrEqualTo(0) && (
             <p className={styles.error}>Amount must be greater than 0</p>
           )}
         </div>
@@ -127,7 +154,7 @@ const Ticker = () => {
               type="submit"
               className={`${styles.button} ${styles.button__sell}`}
               onClick={(e) => handleClick(e, OrderSide.sell)}
-              disabled={!amount || amount.eq(0)}
+              disabled={!amountValue || amountValue.eq(0)}
             >
               Sell
             </button>
@@ -136,7 +163,7 @@ const Ticker = () => {
               type="submit"
               className={`${styles.button} ${styles.button__buy}`}
               onClick={(e) => handleClick(e, OrderSide.buy)}
-              disabled={!amount || amount.eq(0)}
+              disabled={!amountValue || amountValue.eq(0)}
             >
               Buy
             </button>
