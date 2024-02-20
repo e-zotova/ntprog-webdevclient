@@ -1,49 +1,71 @@
-export interface CurrencyData {
-  buy: number;
-  sell: number;
-}
-
-const INTERVAL = 1700;
+import { Instrument } from "../../constants/Enums";
+import { Quote } from "../../Models/Base";
+import Decimal from "decimal.js";
 
 export default class CurrencyDataManager {
-  private currencyData: { [key: string]: CurrencyData } = {};
+  private currencyData: Record<number, Quote> = {};
 
   constructor() {
     this.initializeCurrencyData();
-    setInterval(this.updateCurrencyData.bind(this), INTERVAL);
+    this.updateCurrencyData.bind(this);
   }
 
   private initializeCurrencyData(): void {
     this.currencyData = {
-      "1": { buy: 1.2, sell: 1.3 },
-      "2": { buy: 90, sell: 95 },
-      "3": { buy: 70, sell: 75 }
+      [Instrument.eur_usd]: { 
+        bid: new Decimal('1.2'),
+        offer: new Decimal('1.3'),
+        minAmount: new Decimal('1.2'),
+        maxAmount: new Decimal('1.3')
+      },
+      [Instrument.eur_rub]: {
+        bid: new Decimal('90'),
+        offer: new Decimal('95'),
+        minAmount: new Decimal('90'),
+        maxAmount: new Decimal('95')
+      },
+      [Instrument.usd_rub]: {
+        bid: new Decimal('70'),
+        offer: new Decimal('75'),
+        minAmount: new Decimal('70'),
+        maxAmount: new Decimal('75')
+      },
     };
   }
 
-  public getCurrencyData(instrument: string): CurrencyData | null {
-    return this.currencyData[instrument] || null;
+  public getCurrencyData(instrument: Instrument): Quote | null {
+    this.updateCurrencyData();
+    const currencyData = this.currencyData[instrument] || null;
+
+    return currencyData;
   }
 
   private getRandomNumberInRange(min: number, max: number): number {
     const precision = 4;
     const range = max - min;
-    const randomValue = min + Math.random() * range;
+    const actualMin = Math.max(0, min);
+    const randomValue = actualMin + Math.random() * range;
     return parseFloat(randomValue.toFixed(precision));
   }
 
-  private generateRandomCurrencyData(minValue: number, maxValue: number): CurrencyData {
+  private generateRandomCurrencyData(
+    minValue: Decimal,
+    maxValue: Decimal
+  ): Quote {
     return {
-      buy: this.getRandomNumberInRange(minValue, maxValue),
-      sell: this.getRandomNumberInRange(minValue, maxValue)
+      bid: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
+      offer: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
+      minAmount: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
+      maxAmount: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber()))
     };
   }
-
+  
   private updateCurrencyData(): void {
-    Object.keys(this.currencyData).forEach(instrument => {
-      const { buy } = this.currencyData[instrument];
-      const min = buy - 0.1;
-      const max = buy + 0.1;
+    Object.keys(this.currencyData).forEach((key) => {
+      const instrument = parseInt(key);
+      const { bid } = this.currencyData[instrument];
+      const min = new Decimal(bid).minus(0.1);
+      const max = new Decimal(bid).plus(0.1);
       this.currencyData[instrument] = this.generateRandomCurrencyData(min, max);
     });
   }
