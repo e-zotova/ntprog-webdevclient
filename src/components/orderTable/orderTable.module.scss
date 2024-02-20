@@ -1,15 +1,44 @@
+@import '../../static/scss/export.module.scss';
+
 .orderTable {
   width: fit-content;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-bottom: $standart-gap;
+  color: $color-white;
 }
 th,
 td {
-  padding: 8px;
-  border: 1px solid #3c3f46;
+  padding: $padding-8;
+  border: 1px solid $color-black;
   text-align: left;
 }
 
 th {
   font-weight: bold;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.button {
+  cursor: pointer;
+  min-width: 60px;
+  padding: 8px;
+  border: none;
+  border-radius: $radius-radius-8;
+  background-color: #484c54;
+  color: #fff;
+
+  &:hover {
+    background-color: $color-grey-500;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: #242121;
+  }
 }
