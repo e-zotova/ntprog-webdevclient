@@ -19,11 +19,6 @@ export default class CurrencyDataManager {
     this.currencyData = data;
   }
 
-  public getCurrencyData(instrument: Instrument): Quote | null {
-    this.updateCurrencyData();
-    return this.currencyData[instrument] || null;
-  }
-
   private generateRandomNumberInRange(min: Decimal, max: Decimal): Decimal {
     const range = max.minus(min);
     const random = min.plus(range.times(Math.random()));
@@ -48,5 +43,10 @@ export default class CurrencyDataManager {
       const max = bid.plus(0.1);
       Object.assign(quote, this.generateQuote(min.toString(), max.toString()));
     });
+  }
+
+  public getCurrencyData(instrument: Instrument): Quote | null {
+    this.updateCurrencyData();
+    return this.currencyData[instrument] || null;
   }
 }
