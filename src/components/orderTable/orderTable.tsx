@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { IOrder, ordersSelect } from "../../redux/slices/orders";
 import { OrderSide, OrderStatus, Instrument } from "../../constants/Enums";
 import { columns } from "../../constants/constants";
-import usePagination from "../../components/helpers/usePagination";
+import useOrdersPagination from "../../components/helpers/useOrdersPagination";
 import styles from "./orderTable.module.scss";
 
 const OrderTable = ({ orderId, setOrderId }: { orderId: number, setOrderId: (id: number) => void }) => {
@@ -32,7 +32,7 @@ const OrderTable = ({ orderId, setOrderId }: { orderId: number, setOrderId: (id:
 
   // create pagination
   const { currentPage, currentOrders, totalPages, nextPage, prevPage } =
-    usePagination(1, orders);
+    useOrdersPagination(1, orders);
 
   return (
     <div className={styles.orderTableContainer}>

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { rowsPerPage } from "../../constants/constants";
 import { IOrder } from "../../redux/slices/orders";
 
-const usePagination = (initialPage: number, items: IOrder[]) => {
+const useOrdersPagination = (initialPage: number, orders: IOrder[]) => {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const indexOfLastOrder = currentPage * rowsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - rowsPerPage;
-  const currentOrders = items.length > 0 ? items.slice(indexOfFirstOrder, indexOfLastOrder) : [];
+  const currentOrders = orders.length > 0 ? orders.slice(indexOfFirstOrder, indexOfLastOrder) : [];
 
-  const totalPages = Math.ceil(items.length / rowsPerPage);
+  const totalPages = Math.ceil(orders.length / rowsPerPage);
 
   const nextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -20,4 +20,4 @@ const usePagination = (initialPage: number, items: IOrder[]) => {
   return { currentPage, currentOrders, totalPages, nextPage, prevPage };
 };
 
-export default usePagination;
+export default useOrdersPagination;
