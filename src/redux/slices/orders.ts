@@ -1,16 +1,16 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Instrument } from '../../constants/Enums';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Instrument } from "../../constants/Enums";
 
 export interface RootState {
-  orders: IOrders; 
+  orders: IOrders;
 }
 
 export interface IOrder {
   id: number;
   creationDate: string;
   updatedDate: string;
-  orderStatus: number; 
-  side: number; 
+  orderStatus: number;
+  side: number;
   price: string;
   amount: string;
   instrument: Instrument;
@@ -21,16 +21,18 @@ interface IOrders {
 }
 
 const initialState: IOrders = {
-  orders: localStorage.getItem('orders') ? JSON.parse(localStorage.getItem('orders')!) : [],
+  orders: localStorage.getItem("orders")
+    ? JSON.parse(localStorage.getItem("orders")!)
+    : [],
 };
 
 const ordersSlice = createSlice({
-  name: '@@orders',
+  name: "@@orders",
   initialState,
   reducers: {
     addOrder: (state, action: PayloadAction<IOrder>) => {
       const newOrder: IOrder = action.payload;
-      localStorage.setItem('orders', JSON.stringify(newOrder));
+      localStorage.setItem("orders", JSON.stringify(newOrder));
       return {
         ...state,
         orders: [...state.orders, newOrder],
@@ -38,13 +40,15 @@ const ordersSlice = createSlice({
     },
     updateOrder: (state, action: PayloadAction<Partial<IOrder>>) => {
       const updatedOrder: Partial<IOrder> = action.payload;
-      const index = state.orders.findIndex(order => order.id === updatedOrder.id);
+      const index = state.orders.findIndex(
+        (order) => order.id === updatedOrder.id
+      );
       if (index !== -1) {
         state.orders[index] = {
           ...state.orders[index],
           ...updatedOrder,
         };
-        localStorage.setItem('orders', JSON.stringify(state.orders[index]));
+        localStorage.setItem("orders", JSON.stringify(state.orders[index]));
       }
     },
   },

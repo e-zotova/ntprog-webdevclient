@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IPopup {
   id: string;
@@ -14,12 +14,12 @@ const initialState: IPopupState = {
 };
 
 const popupSlice = createSlice({
-  name: 'popup',
+  name: "popup",
   initialState,
   reducers: {
     openPopup: (state, action: PayloadAction<string>) => {
       const popupId = action.payload;
-      const existingPopup = state.popups.find(popup => popup.id === popupId);
+      const existingPopup = state.popups.find((popup) => popup.id === popupId);
 
       if (existingPopup) {
         existingPopup.isOpen = true;
@@ -29,7 +29,7 @@ const popupSlice = createSlice({
     },
     closePopup: (state, action: PayloadAction<string>) => {
       const popupId = action.payload;
-      const existingPopup = state.popups.find(popup => popup.id === popupId);
+      const existingPopup = state.popups.find((popup) => popup.id === popupId);
 
       if (existingPopup) {
         existingPopup.isOpen = false;
