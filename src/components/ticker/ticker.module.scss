@@ -8,26 +8,26 @@
   border-radius: $radius-radius-4;
   justify-content: center;
   align-items: center;
-  padding-bottom: 20px;
+  padding-bottom: $gap-20;
   background-color: $color-grey-900;
 
   &__form {
     display: flex;
     min-width: 350px;
-    padding: 20px;
+    padding: $gap-20;
     flex-direction: column;
   }
 }
 
 .dropdown {
-  padding: 8px;
-  margin-bottom: 20px;
-  font-size: 24px;
+  padding: $padding-8;
+  margin-bottom: $gap-20;
+  font-size: $font-size-24;
   border-radius: $radius-radius-4;
   border: none;
   text-align: center;
   background-color: $color-grey-500;
-  color: #fff;
+  color: $color-white;
 }
 
 .option {
@@ -35,14 +35,14 @@
 }
 
 .amount {
-  padding: 8px;
-  margin-bottom: 10px;
-  font-size: 24px;
+  padding: $padding-8;
+  margin-bottom: $gap-10;
+  font-size: $font-size-24;
   border-radius: $radius-radius-4;
   border: none;
   text-align: center;
   background-color: $color-grey-500;
-  color: #fff;
+  color: $color-white;
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
@@ -55,12 +55,12 @@
 .prices {
   display: flex;
   justify-content: space-around;
-  gap: 20px;
+  gap: $gap-20;
 
   &__current {
-    font-size: 32px;
+    font-size: $font-size-32;
     font-weight: 900;
-    padding-bottom: 20px;
+    padding-bottom: $gap-20;
   }
 }
 
@@ -71,23 +71,18 @@
 }
 
 .button {
-  font-size: 24px;
+  font-size: $font-size-24;
   font-weight: 600;
   border-radius: $radius-radius-4;
   padding: 10px 30px;
   border: none;
   color: $color-white;
 
-  &:hover {
-    cursor: pointer;
-  }
-
   &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    opacity: .5;
 
     & button:disabled:hover {
-      opacity: 0.5;
+      opacity: .5;
     }
   }
 
@@ -110,11 +105,12 @@
 
 .errorContainer {
   height: 15px;
-  margin-bottom: 8px;
+  margin-bottom: $padding-8;
 }
 
 .error {
   margin: 0;
-  font-size: 12px;
+  font-size: $font-size-12;
+  font-weight: 700;
   color: $color-red;
 }

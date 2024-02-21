@@ -1,44 +1,58 @@
-@import '../../static/scss/export.module.scss';
+@import "../../static/scss/export.module.scss";
+
+.orderTableContainer {
+  min-height: 500px;
+  font-size: $font-size-18;
+}
 
 .orderTable {
   width: fit-content;
   border-collapse: collapse;
-  margin-bottom: $standart-gap;
+  margin-bottom: $gap-20;
   color: $color-white;
 }
 th,
 td {
   padding: $padding-8;
-  border: 1px solid $color-black;
-  text-align: left;
+  border: 1px solid $color-grey-300;
+  text-align: center;
 }
 
 th {
-  font-weight: bold;
+  font-weight: 900;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: $gap-20;
 }
 
 .button {
   cursor: pointer;
   min-width: 60px;
-  padding: 8px;
+  padding: $padding-8;
   border: none;
   border-radius: $radius-radius-8;
-  background-color: #484c54;
-  color: #fff;
+  background-color: $color-grey-400;
+  color: $color-white;
 
   &:hover {
-    background-color: $color-grey-500;
+    background-color: $color-grey-300;
   }
 
   &:disabled {
     cursor: not-allowed;
-    background-color: #242121;
+    background-color: $color-grey-900;
+    color: $color-grey-300;
   }
+}
+
+.orderSideBuy {
+  color: $color-green-hover;
+}
+
+.orderSideSell {
+  color: $color-red-hover;
 }
