@@ -22,12 +22,3 @@ export interface RootOrdersState {
 export interface IOrders {
   orders: IOrder[];
 }
-
-export interface IPopup {
-  id: string;
-  isOpen: boolean;
-}
-
-export interface IPopupState {
-  popups: IPopup[];
-}
