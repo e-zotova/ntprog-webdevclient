@@ -17,31 +17,29 @@ const Ticker = ({
   tickerData: TickerData;
 }) => {
   const dispatch = useDispatch();
-
-  const instrumentKeys = Object.keys(Instrument).filter((key) =>
-    isNaN(Number(key))
-  );
-
+  const [amountValue, setAmountValue] = useState<Decimal | null>(null);
   const initialSelectedInstrument = useSelector(
     (state: RootState) => Instrument.eur_usd || state.selectedInstrument
   );
   const [instrument, setInstrument] = useState(initialSelectedInstrument);
-
-  const [amountValue, setAmountValue] = useState<Decimal | null>(null);
+  const instrumentKeys = Object.keys(Instrument).filter((key) =>
+    isNaN(Number(key))
+  );
   const [currency, setCurrency] = useState<{ buy: Decimal; sell: Decimal }>({
     buy: new Decimal(0),
     sell: new Decimal(0),
   });
-
   const [orderId, setOrderId] = useState<number>(() => {
     const nextOrderId = localStorage.getItem("nextOrderId");
     return nextOrderId ? parseInt(nextOrderId) : 1;
   });
 
+  // update order id when new order is added to the table
   useEffect(() => {
     localStorage.setItem("nextOrderId", orderId.toString());
   }, [orderId]);
 
+  // set currency data
   useEffect(() => {
     if (tickerData && tickerData.quotes) {
       const { bid, offer } = tickerData.quotes;
@@ -53,18 +51,21 @@ const Ticker = ({
     }
   }, [tickerData]);
 
+  // set selected instrument
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedInstrumentValue = parseInt(event.target.value);
     dispatch(setSelectedInstrument(instrument));
     setInstrument(selectedInstrumentValue);
   };
 
+  // subscribe to market data
   useEffect(() => {
     setInstrument(instrument);
     socket?.subscribeMarketData(instrument);
   }, [socket, setInstrument, instrument]);
 
-  const handleClick = (
+  // place order
+  const handlePlaceOrder = (
     evt: React.MouseEvent<HTMLButtonElement>,
     orderSide: OrderSide
   ) => {
@@ -98,6 +99,7 @@ const Ticker = ({
     <div className={styles.ticker}>
       <form className={styles.ticker__form}>
         <label htmlFor="dropdown"></label>
+
         <select
           id="dropdown"
           className={styles.dropdown}
@@ -114,21 +116,19 @@ const Ticker = ({
             </option>
           ))}
         </select>
+
         <input
           type="number"
           className={styles.amount}
           placeholder="Enter amount"
           min="0"
-          step="0.001"
           value={amountValue !== null ? amountValue.toNumber() : ""}
           onChange={(e) => {
             let newValue = e.target.value;
-            if (newValue.match(/^\d+$/)) {
-              if (newValue === "" || parseFloat(newValue) < 0) {
-                setAmountValue(null);
-              } else {
-                setAmountValue(new Decimal(newValue));
-              }
+            if (newValue === "") {
+              setAmountValue(null);
+            } else if (newValue.match(/^\d+$/)) {
+              setAmountValue(new Decimal(newValue));
             }
           }}
         />
@@ -157,7 +157,7 @@ const Ticker = ({
             <button
               type="submit"
               className={`${styles.button} ${styles.button__sell}`}
-              onClick={(e) => handleClick(e, OrderSide.sell)}
+              onClick={(e) => handlePlaceOrder(e, OrderSide.sell)}
               disabled={!amountValue || amountValue.eq(0)}
             >
               Sell
@@ -166,7 +166,7 @@ const Ticker = ({
             <button
               type="submit"
               className={`${styles.button} ${styles.button__buy}`}
-              onClick={(e) => handleClick(e, OrderSide.buy)}
+              onClick={(e) => handlePlaceOrder(e, OrderSide.buy)}
               disabled={!amountValue || amountValue.eq(0)}
             >
               Buy
