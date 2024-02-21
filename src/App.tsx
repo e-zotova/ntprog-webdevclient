@@ -6,10 +6,7 @@ import Ticker from "./components/ticker/ticker";
 import OrderTable from "./components/orderTable/orderTable";
 import { ServerMessageType } from "./constants/Enums";
 import { updateOrder } from "./redux/slices/orders"; 
-
-export interface TickerData {
-  quotes: { bid: number; offer: number };
-}
+import { TickerData } from "./types/types";
 
 function App() {
   const socket = useWebSocket();

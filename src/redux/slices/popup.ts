@@ -1,13 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface IPopup {
-  id: string;
-  isOpen: boolean;
-}
-
-interface IPopupState {
-  popups: IPopup[];
-}
+import { IPopupState } from "../../types/types";
 
 const initialState: IPopupState = {
   popups: [],

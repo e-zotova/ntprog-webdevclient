@@ -1,24 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Instrument } from "../../constants/Enums";
-
-export interface RootState {
-  orders: IOrders;
-}
-
-export interface IOrder {
-  id: number;
-  creationDate: string;
-  updatedDate: string;
-  orderStatus: number;
-  side: number;
-  price: string;
-  amount: string;
-  instrument: Instrument;
-}
-
-interface IOrders {
-  orders: IOrder[];
-}
+import { IOrder, RootOrdersState, IOrders } from "../../types/types";
 
 const initialState: IOrders = {
   orders: localStorage.getItem("orders")
@@ -56,4 +37,4 @@ const ordersSlice = createSlice({
 
 export const { addOrder, updateOrder } = ordersSlice.actions;
 export const ordersReducer = ordersSlice.reducer;
-export const ordersSelect = (state: RootState) => state.orders;
+export const ordersSelect = (state: RootOrdersState) => state.orders;

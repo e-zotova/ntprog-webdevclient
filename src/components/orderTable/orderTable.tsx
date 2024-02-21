@@ -1,8 +1,9 @@
 import { Key, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { IOrder, ordersSelect } from "../../redux/slices/orders";
+import { ordersSelect } from "../../redux/slices/orders";
 import { OrderSide, OrderStatus, Instrument } from "../../constants/Enums";
 import { columns } from "../../constants/constants";
+import { IOrder } from "../../types/types";
 import useOrdersPagination from "../../components/helpers/useOrdersPagination";
 import styles from "./orderTable.module.scss";
 

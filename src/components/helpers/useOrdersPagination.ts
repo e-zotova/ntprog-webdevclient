@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { rowsPerPage } from "../../constants/constants";
-import { IOrder } from "../../redux/slices/orders";
+import { IOrder } from "../../types/types";
 
 const useOrdersPagination = (initialPage: number, orders: IOrder[]) => {
   const [currentPage, setCurrentPage] = useState(initialPage);

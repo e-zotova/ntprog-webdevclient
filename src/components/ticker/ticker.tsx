@@ -6,7 +6,7 @@ import { Instrument, OrderSide } from "../../constants/Enums";
 import { addOrder } from "../../redux/slices/orders";
 import { setSelectedInstrument } from "../../redux/slices/selectedInstrument";
 import Decimal from "decimal.js";
-import { TickerData } from "../../App";
+import { TickerData } from "../../types/types";
 import { RootState } from "../../redux/store";
 
 const Ticker = ({
