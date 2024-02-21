@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { ordersSelect } from "../../redux/slices/orders";
+import { IOrder, ordersSelect } from "../../redux/slices/orders";
 import { OrderSide, OrderStatus, Instrument } from "../../constants/Enums";
-import { columns } from "../../constants/constants";
+import { columns, rowsPerPage } from "../../constants/constants";
+import { convertString } from "../helpers/helpers";
 import styles from "./orderTable.module.scss";
 
 const OrderTable = () => {
@@ -11,9 +12,14 @@ const OrderTable = () => {
 
   // localStorage.clear()
 
+  const setOrderColor = (order: IOrder) => {
+    return order.side === OrderSide.buy
+      ? styles.orderSideBuy
+      : styles.orderSideSell;
+  };
+
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
   const indexOfLastOrder = currentPage * rowsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - rowsPerPage;
   const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
@@ -29,7 +35,7 @@ const OrderTable = () => {
   };
 
   return (
-    <>
+    <div className={styles.orderTableContainer}>
       <table className={styles.orderTable}>
         <thead>
           <tr>
@@ -49,10 +55,16 @@ const OrderTable = () => {
                 <td>{order.id}</td>
                 <td>{order.creationDate}</td>
                 <td>{order.updatedDate}</td>
-                <td>{OrderStatus[order.orderStatus]}</td>
-                <td>{OrderSide[order.side]}</td>
-                <td>{order.price.toString()}</td>
-                <td>{order.amount.toString()}</td>
+                <td>{convertString(OrderStatus[order.orderStatus])}</td>
+                <td className={setOrderColor(order)}>
+                  {convertString(OrderSide[order.side])}
+                </td>
+                <td className={setOrderColor(order)}>
+                  {order.price.toString()}
+                </td>
+                <td className={setOrderColor(order)}>
+                  {parseFloat(order.amount).toFixed(2)}
+                </td>
                 <td>
                   {Instrument[order.instrument].replace("_", "/").toUpperCase()}
                 </td>
@@ -82,7 +94,7 @@ const OrderTable = () => {
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -34,14 +34,13 @@ const Ticker = ({
   });
 
   const [orderId, setOrderId] = useState<number>(() => {
-    const storedOrderId = localStorage.getItem("orders[orders.length].id");
-    return storedOrderId ? parseInt(storedOrderId) : 1;
+    const nextOrderId = localStorage.getItem("nextOrderId");
+    return nextOrderId ? parseInt(nextOrderId) : 1;
   });
 
   useEffect(() => {
-    localStorage.setItem("orders[orders.length].id", orderId.toString());
+    localStorage.setItem("nextOrderId", orderId.toString());
   }, [orderId]);
-  
 
   useEffect(() => {
     if (tickerData && tickerData.quotes) {
@@ -58,13 +57,12 @@ const Ticker = ({
     const selectedInstrumentValue = parseInt(event.target.value);
     dispatch(setSelectedInstrument(instrument));
     setInstrument(selectedInstrumentValue);
-
   };
 
   useEffect(() => {
-      setInstrument(instrument);
-      socket?.subscribeMarketData(instrument);
-    }, [socket, setInstrument, instrument]);
+    setInstrument(instrument);
+    socket?.subscribeMarketData(instrument);
+  }, [socket, setInstrument, instrument]);
 
   const handleClick = (
     evt: React.MouseEvent<HTMLButtonElement>,
@@ -78,7 +76,10 @@ const Ticker = ({
       updatedDate: "",
       orderStatus: 1,
       side: orderSide,
-      price: orderSide === OrderSide.sell ? currency.sell.toString() : currency.buy.toString(),
+      price:
+        orderSide === OrderSide.sell
+          ? currency.sell.toString()
+          : currency.buy.toString(),
       amount: (amountValue ?? new Decimal(0)).toString(),
       instrument: instrument,
     };
@@ -118,13 +119,16 @@ const Ticker = ({
           className={styles.amount}
           placeholder="Enter amount"
           min="0"
-          value={amountValue !== null ? amountValue.toString() : ""}
+          step="0.001"
+          value={amountValue !== null ? amountValue.toNumber() : ""}
           onChange={(e) => {
-            const newValue = e.target.value;
-            if (newValue === "" || parseFloat(newValue) < 0) {
-              setAmountValue(null);
-            } else {
-              setAmountValue(new Decimal(newValue));
+            let newValue = e.target.value;
+            if (newValue.match(/^\d+$/)) {
+              if (newValue === "" || parseFloat(newValue) < 0) {
+                setAmountValue(null);
+              } else {
+                setAmountValue(new Decimal(newValue));
+              }
             }
           }}
         />
