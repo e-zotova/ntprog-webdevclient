@@ -18,6 +18,7 @@ function App() {
     quotes: { bid: 0, offer: 0 },
   });
 
+  // handle server response
   const handleMessage = (event: MessageEvent) => {
     const data = JSON.parse(event.data);
 

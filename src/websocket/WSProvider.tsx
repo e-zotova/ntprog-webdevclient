@@ -6,7 +6,7 @@ interface WebSocketContextType {
   socket: WSClient | null;
 }
 
-// WebSocket context
+// create WebSocket context
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
 export const WSProvider = ({ children }: { children: React.ReactNode }) => {
@@ -36,7 +36,7 @@ export const WSProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// hook to use WebSocket
+// add hook to use WebSocket
  export const useWebSocket = (): WSClient | null => {
     const context = useContext(WebSocketContext);
   

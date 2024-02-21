@@ -1,6 +1,5 @@
 import {ClientMessage} from "../Models/ClientMessages";
-import {ClientMessageType, Instrument, ServerMessageType} from "../constants/Enums";
-import {ServerEnvelope} from "../Models/ServerMessages";
+import {ClientMessageType, Instrument} from "../constants/Enums";
 import {PlaceOrder} from "../Models/ClientMessages";
 
 export default class WSClient {
@@ -27,23 +26,6 @@ export default class WSClient {
       console.log('Connection state:', this.connection?.readyState);
     };
 
-    this.connection.onmessage = (event) => {
-      const message: ServerEnvelope = JSON.parse(event.data);
-      switch (message.messageType) {
-        case ServerMessageType.success:
-          console.log('Success');
-          break;
-        case ServerMessageType.error:
-          console.log('Error:', message.message);
-          break;
-        case ServerMessageType.executionReport:
-          console.log('Execution report');
-          break;
-        case ServerMessageType.marketDataUpdate:
-          console.log('Market data update');
-          break;
-      }
-    };
   }
 
   disconnect = () => {

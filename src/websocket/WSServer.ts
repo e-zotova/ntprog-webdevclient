@@ -7,8 +7,8 @@ import {
   Instrument,
 } from "../constants/Enums";
 import { MarketDataUpdate } from "../Models/ServerMessages";
-import Decimal from "decimal.js";
 import { timeoutValue, subsriptionId } from "../constants/constants";
+import { Message } from "../Models/Base";
 
 export default class MockWSServer {
   private mockServer: Server;
@@ -22,26 +22,80 @@ export default class MockWSServer {
     this.intervalId = null;
   }
 
-  private getResponse(instrument: Instrument, subscriptionId: string) {
-    const currencyData = this.currencyDataManager.getCurrencyData(instrument);
+  // send subscription id
+  private handleMarketDataSubsription(data: Message, socket: Client): void {
+    console.log("Received market data request:", data);
 
+    socket.send(
+      JSON.stringify({
+        messageType: ServerMessageType.success,
+        message: {
+          subscriptionId: subsriptionId,
+        },
+      })
+    );
+  }
+
+  // send currency data for selected instrument
+  private sendCurrencyData(
+    socket: Client,
+    instrument: Instrument,
+    subscriptionId: string
+  ) {
+    const currencyData = this.currencyDataManager.getCurrencyData(instrument);
     if (currencyData) {
-      const bid: Decimal = currencyData.bid;
-      const offer: Decimal = currencyData.offer;
-      const minAmount: Decimal = currencyData.minAmount;
-      const maxAmount: Decimal = currencyData.maxAmount;
+      const { bid, offer, minAmount, maxAmount } = currencyData;
 
       const response = {
         messageType: ServerMessageType.marketDataUpdate,
         message: {
-          subscriptionId: subscriptionId,
-          instrument: instrument,
+          subscriptionId,
+          instrument,
           quotes: [{ bid, offer, minAmount, maxAmount }],
         } as MarketDataUpdate,
       };
 
-      return response;
+      socket.send(JSON.stringify(response));
     }
+  }
+
+  private getRandomOrderIndex(): number {
+    const orderStatusValues = Object.values(OrderStatus).filter(
+      (value) => typeof value === "number"
+    );
+    const randomIndex =
+      Math.floor(Math.random() * orderStatusValues.length) + 1;
+    return randomIndex;
+  }
+
+  // send order status and updated date after timeout
+  private handlePlaceOrder(data: any, socket: Client): void {
+    const response = {
+      messageType: ServerMessageType.executionReport,
+      message: {
+        id: data.message.id,
+        updatedDate: new Date(Date.now() + timeoutValue).toLocaleString(),
+        orderStatus: this.getRandomOrderIndex(),
+      },
+    };
+
+    setTimeout(() => {
+      socket.send(JSON.stringify(response));
+      console.log("Sent response:", response);
+    }, timeoutValue);
+  }
+
+  private setupInterval(callback: () => void): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+    this.intervalId = setInterval(callback, 1700);
+  }
+
+  private sendErrorMessage(socket: Client, reason: string): void {
+    socket.send(
+      JSON.stringify({ messageType: ServerMessageType.error, reason })
+    );
   }
 
   private handleConnection(socket: Client): void {
@@ -54,68 +108,25 @@ export default class MockWSServer {
           try {
             const data = JSON.parse(message);
 
-            if (data.messageType === ClientMessageType.subscribeMarketData) {
-              console.log("Received market data request:", data);
+            switch (data.messageType) {
+              case ClientMessageType.subscribeMarketData:
+                this.handleMarketDataSubsription(data, socket);
+                const instrument = data.message.instrument;
+                this.sendCurrencyData(socket, instrument, subsriptionId);
 
-              socket.send(
-                JSON.stringify({
-                  messageType: ServerMessageType.success,
-                  message: {
-                    subscriptionId: subsriptionId,
-                  },
-                })
-              );
-
-              const instrument = data.message.instrument;
-              const response = this.getResponse(instrument, subsriptionId);
-              socket.send(JSON.stringify(response));
-
-              const intervalCallback = () => {
-                const updateResponse = this.getResponse(
-                  instrument,
-                  subsriptionId
-                );
-                socket.send(JSON.stringify(updateResponse));
-              };
-
-              if (this.intervalId) {
-                clearInterval(this.intervalId);
-              }
-
-              this.intervalId = setInterval(intervalCallback, 1700);
-            } else if (data.messageType === ClientMessageType.placeOrder) {
-              console.log("Received place order:", data);
-
-              const orderStatusValues = Object.values(OrderStatus).filter(
-                (value) => typeof value === "number"
-              );
-              const randomIndex =
-                Math.floor(Math.random() * orderStatusValues.length) + 1;
-
-              const response = {
-                messageType: ServerMessageType.executionReport,
-                message: {
-                  id: data.message.id,
-                  updatedDate: new Date(
-                    Date.now() + timeoutValue
-                  ).toLocaleString(),
-                  orderStatus: randomIndex,
-                },
-              };
-
-              setTimeout(() => {
-                socket.send(JSON.stringify(response));
-                console.log("Sent response:", response);
-              }, timeoutValue);
+                const intervalCallback = () => {
+                  this.sendCurrencyData(socket, instrument, subsriptionId);
+                };
+                this.setupInterval(intervalCallback);
+                break;
+              case ClientMessageType.placeOrder:
+                this.handlePlaceOrder(data, socket);
+                break;
+              default:
+                console.log("Unknown message type:", data.messageType);
             }
           } catch (error) {
-            console.error("Error parsing JSON:", error);
-            socket.send(
-              JSON.stringify({
-                messageType: ServerMessageType.error,
-                reason: "Invalid JSON format",
-              })
-            );
+            this.sendErrorMessage(socket, "Invalid JSON format");
           }
         }
       }
