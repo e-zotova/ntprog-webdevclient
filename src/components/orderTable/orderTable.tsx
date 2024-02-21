@@ -1,38 +1,38 @@
-import { useState } from "react";
+import { Key, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { IOrder, ordersSelect } from "../../redux/slices/orders";
 import { OrderSide, OrderStatus, Instrument } from "../../constants/Enums";
-import { columns, rowsPerPage } from "../../constants/constants";
-import { convertString } from "../helpers/helpers";
+import { columns } from "../../constants/constants";
+import usePagination from "../../components/helpers/usePagination";
 import styles from "./orderTable.module.scss";
 
-const OrderTable = () => {
+const OrderTable = ({ orderId, setOrderId }: { orderId: number, setOrderId: (id: number) => void }) => {
   const { orders } = useSelector(ordersSelect);
-  localStorage.setItem("orders", JSON.stringify(orders));
 
-  // localStorage.clear()
+  // set orders in local storage
+  useEffect(() => {
+    if (orders.length > 0) {
+      localStorage.setItem("orders", JSON.stringify(orders));
+      const lastOrderIndex = orders.length - 1;
+      setOrderId(orders[lastOrderIndex].id + 1);
+    }
+  }, [orders, setOrderId]);
 
+  // capitalize first letter of string
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  // set order color
   const setOrderColor = (order: IOrder) => {
     return order.side === OrderSide.buy
       ? styles.orderSideBuy
       : styles.orderSideSell;
   };
 
-  // pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const indexOfLastOrder = currentPage * rowsPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - rowsPerPage;
-  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
-
-  const totalPages = Math.ceil(orders.length / rowsPerPage);
-
-  const nextPage = () => {
-    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
-  };
-
-  const prevPage = () => {
-    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
-  };
+  // create pagination
+  const { currentPage, currentOrders, totalPages, nextPage, prevPage } =
+    usePagination(1, orders);
 
   return (
     <div className={styles.orderTableContainer}>
@@ -50,14 +50,14 @@ const OrderTable = () => {
               <td colSpan={columns.length}>No data</td>
             </tr>
           ) : (
-            currentOrders.map((order, orderIndex) => (
+            currentOrders.map((order: IOrder, orderIndex: Key) => (
               <tr key={orderIndex}>
                 <td>{order.id}</td>
                 <td>{order.creationDate}</td>
                 <td>{order.updatedDate}</td>
-                <td>{convertString(OrderStatus[order.orderStatus])}</td>
+                <td>{capitalizeFirstLetter(OrderStatus[order.orderStatus])}</td>
                 <td className={setOrderColor(order)}>
-                  {convertString(OrderSide[order.side])}
+                  {capitalizeFirstLetter(OrderSide[order.side])}
                 </td>
                 <td className={setOrderColor(order)}>
                   {order.price.toString()}
