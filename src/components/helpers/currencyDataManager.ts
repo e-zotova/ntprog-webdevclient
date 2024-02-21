@@ -12,23 +12,23 @@ export default class CurrencyDataManager {
 
   private initializeCurrencyData(): void {
     this.currencyData = {
-      [Instrument.eur_usd]: { 
-        bid: new Decimal('1.2'),
-        offer: new Decimal('1.3'),
-        minAmount: new Decimal('1.2'),
-        maxAmount: new Decimal('1.3')
+      [Instrument.eur_usd]: {
+        bid: new Decimal("1.2"),
+        offer: new Decimal("1.3"),
+        minAmount: new Decimal("1.2"),
+        maxAmount: new Decimal("1.3"),
       },
       [Instrument.eur_rub]: {
-        bid: new Decimal('90'),
-        offer: new Decimal('95'),
-        minAmount: new Decimal('90'),
-        maxAmount: new Decimal('95')
+        bid: new Decimal("90"),
+        offer: new Decimal("95"),
+        minAmount: new Decimal("90"),
+        maxAmount: new Decimal("95"),
       },
       [Instrument.usd_rub]: {
-        bid: new Decimal('70'),
-        offer: new Decimal('75'),
-        minAmount: new Decimal('70'),
-        maxAmount: new Decimal('75')
+        bid: new Decimal("70"),
+        offer: new Decimal("75"),
+        minAmount: new Decimal("70"),
+        maxAmount: new Decimal("75"),
       },
     };
   }
@@ -53,13 +53,21 @@ export default class CurrencyDataManager {
     maxValue: Decimal
   ): Quote {
     return {
-      bid: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
-      offer: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
-      minAmount: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())),
-      maxAmount: new Decimal(this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber()))
+      bid: new Decimal(
+        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
+      ),
+      offer: new Decimal(
+        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
+      ),
+      minAmount: new Decimal(
+        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
+      ),
+      maxAmount: new Decimal(
+        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
+      ),
     };
   }
-  
+
   private updateCurrencyData(): void {
     Object.keys(this.currencyData).forEach((key) => {
       const instrument = parseInt(key);

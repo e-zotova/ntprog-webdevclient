@@ -8,6 +8,7 @@ import {
 } from "../constants/Enums";
 import { MarketDataUpdate } from "../Models/ServerMessages";
 import Decimal from "decimal.js";
+import { timeoutValue, subsriptionId } from "../constants/constants";
 
 export default class MockWSServer {
   private mockServer: Server;
@@ -56,8 +57,6 @@ export default class MockWSServer {
             if (data.messageType === ClientMessageType.subscribeMarketData) {
               console.log("Received market data request:", data);
 
-              const subsriptionId = "123";
-
               socket.send(
                 JSON.stringify({
                   messageType: ServerMessageType.success,
@@ -86,7 +85,6 @@ export default class MockWSServer {
               this.intervalId = setInterval(intervalCallback, 1700);
             } else if (data.messageType === ClientMessageType.placeOrder) {
               console.log("Received place order:", data);
-              const timeoutValue = 10000;
 
               const orderStatusValues = Object.values(OrderStatus).filter(
                 (value) => typeof value === "number"
@@ -98,7 +96,9 @@ export default class MockWSServer {
                 messageType: ServerMessageType.executionReport,
                 message: {
                   id: data.message.id,
-                  updatedDate: new Date(Date.now() + timeoutValue).toLocaleString(),
+                  updatedDate: new Date(
+                    Date.now() + timeoutValue
+                  ).toLocaleString(),
                   orderStatus: randomIndex,
                 },
               };

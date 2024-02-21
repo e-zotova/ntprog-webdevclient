@@ -8,3 +8,9 @@ export const columns = [
   { label: "Amount" },
   { label: "Instrument" }
 ];
+
+export const rowsPerPage = 10;
+
+export const timeoutValue = 5000;
+
+export const subsriptionId = "123";
