@@ -4,77 +4,49 @@ import Decimal from "decimal.js";
 
 export default class CurrencyDataManager {
   private currencyData: Record<number, Quote> = {};
+  private readonly precision: number = 4;
 
   constructor() {
     this.initializeCurrencyData();
-    this.updateCurrencyData.bind(this);
   }
 
   private initializeCurrencyData(): void {
-    this.currencyData = {
-      [Instrument.eur_usd]: {
-        bid: new Decimal("1.2"),
-        offer: new Decimal("1.3"),
-        minAmount: new Decimal("1.2"),
-        maxAmount: new Decimal("1.3"),
-      },
-      [Instrument.eur_rub]: {
-        bid: new Decimal("90"),
-        offer: new Decimal("95"),
-        minAmount: new Decimal("90"),
-        maxAmount: new Decimal("95"),
-      },
-      [Instrument.usd_rub]: {
-        bid: new Decimal("70"),
-        offer: new Decimal("75"),
-        minAmount: new Decimal("70"),
-        maxAmount: new Decimal("75"),
-      },
+    const data: Record<Instrument, Quote> = {
+      [Instrument.eur_usd]: this.generateQuote("1.2", "1.3"),
+      [Instrument.eur_rub]: this.generateQuote("90", "95"),
+      [Instrument.usd_rub]: this.generateQuote("70", "75"),
     };
+    this.currencyData = data;
   }
 
   public getCurrencyData(instrument: Instrument): Quote | null {
     this.updateCurrencyData();
-    const currencyData = this.currencyData[instrument] || null;
-
-    return currencyData;
+    return this.currencyData[instrument] || null;
   }
 
-  private getRandomNumberInRange(min: number, max: number): number {
-    const precision = 4;
-    const range = max - min;
-    const actualMin = Math.max(0, min);
-    const randomValue = actualMin + Math.random() * range;
-    return parseFloat(randomValue.toFixed(precision));
+  private generateRandomNumberInRange(min: Decimal, max: Decimal): Decimal {
+    const range = max.minus(min);
+    const random = min.plus(range.times(Math.random()));
+    return random.toDecimalPlaces(this.precision);
   }
 
-  private generateRandomCurrencyData(
-    minValue: Decimal,
-    maxValue: Decimal
-  ): Quote {
+  private generateQuote(bid: string, offer: string): Quote {
+    const minValue = new Decimal(bid);
+    const maxValue = new Decimal(offer);
     return {
-      bid: new Decimal(
-        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
-      ),
-      offer: new Decimal(
-        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
-      ),
-      minAmount: new Decimal(
-        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
-      ),
-      maxAmount: new Decimal(
-        this.getRandomNumberInRange(minValue.toNumber(), maxValue.toNumber())
-      ),
+      bid: this.generateRandomNumberInRange(minValue, maxValue),
+      offer: this.generateRandomNumberInRange(minValue, maxValue),
+      minAmount: minValue,
+      maxAmount: maxValue,
     };
   }
 
   private updateCurrencyData(): void {
-    Object.keys(this.currencyData).forEach((key) => {
-      const instrument = parseInt(key);
-      const { bid } = this.currencyData[instrument];
-      const min = new Decimal(bid).minus(0.1);
-      const max = new Decimal(bid).plus(0.1);
-      this.currencyData[instrument] = this.generateRandomCurrencyData(min, max);
+    Object.values(this.currencyData).forEach((quote) => {
+      const { bid } = quote;
+      const min = bid.minus(0.1);
+      const max = bid.plus(0.1);
+      Object.assign(quote, this.generateQuote(min.toString(), max.toString()));
     });
   }
 }
