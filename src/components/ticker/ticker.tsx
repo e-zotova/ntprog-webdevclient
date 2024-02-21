@@ -12,9 +12,13 @@ import { RootState } from "../../redux/store";
 const Ticker = ({
   socket,
   tickerData,
+  orderId,
+  setOrderId,
 }: {
   socket: WSClient | null;
   tickerData: TickerData;
+  orderId: number;
+  setOrderId: (orderId: number) => void;
 }) => {
   const dispatch = useDispatch();
   const [amountValue, setAmountValue] = useState<Decimal | null>(null);
@@ -28,10 +32,6 @@ const Ticker = ({
   const [currency, setCurrency] = useState<{ buy: Decimal; sell: Decimal }>({
     buy: new Decimal(0),
     sell: new Decimal(0),
-  });
-  const [orderId, setOrderId] = useState<number>(() => {
-    const nextOrderId = localStorage.getItem("nextOrderId");
-    return nextOrderId ? parseInt(nextOrderId) : 1;
   });
 
   // update order id when new order is added to the table

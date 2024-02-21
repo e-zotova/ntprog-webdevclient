@@ -18,6 +18,13 @@ function App() {
     quotes: { bid: 0, offer: 0 },
   });
 
+  const [orderId, setOrderId] = useState<number>(() => {
+    const orders = localStorage.getItem("orders");
+    const parsedOrders = orders ? JSON.parse(orders) : [];
+    const lastOrderIndex = parsedOrders.length > 0 ? parsedOrders[parsedOrders.length - 1].id : 0;
+    return lastOrderIndex + 1;
+  });
+
   // handle server response
   const handleMessage = (event: MessageEvent) => {
     const data = JSON.parse(event.data);
@@ -50,8 +57,8 @@ function App() {
 
   return (
     <div className="App">
-      <Ticker socket={socket} tickerData={tickerData} />
-      <OrderTable />
+      <Ticker socket={socket} tickerData={tickerData} orderId={orderId} setOrderId={setOrderId}/>
+      <OrderTable orderId={orderId} setOrderId={setOrderId}/>
     </div>
   );
 }
