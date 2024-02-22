@@ -21,7 +21,8 @@ export default class CurrencyDataManager {
 
   private generateRandomNumberInRange(min: Decimal, max: Decimal): Decimal {
     const range = max.minus(min);
-    const random = min.plus(range.times(Math.random()));
+    let random = min.plus(range.times(Math.random()));
+    random = random.abs();
     return random.toDecimalPlaces(this.precision);
   }
 
