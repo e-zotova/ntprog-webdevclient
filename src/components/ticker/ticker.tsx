@@ -65,7 +65,7 @@ const Ticker = ({
   }, [socket, setInstrument, instrument]);
 
   // place order
-  const handlePlaceOrder = (
+   const handlePlaceOrder = (
     evt: React.MouseEvent<HTMLButtonElement>,
     orderSide: OrderSide
   ) => {
@@ -79,8 +79,8 @@ const Ticker = ({
       side: orderSide,
       price:
         orderSide === OrderSide.sell
-          ? currency.sell.toString()
-          : currency.buy.toString(),
+          ? currency.sell.toString() || "0"
+          : currency.buy.toString() || "0",
       amount: (amountValue ?? new Decimal(0)).toString(),
       instrument: instrument,
     };
@@ -102,6 +102,7 @@ const Ticker = ({
 
         <select
           id="dropdown"
+          data-testid="dropdown"
           className={styles.dropdown}
           value={instrument}
           onChange={handleSelectChange}

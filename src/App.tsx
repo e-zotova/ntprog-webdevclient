@@ -55,7 +55,7 @@ function App() {
   return (
     <div className="App">
       <Ticker socket={socket} tickerData={tickerData} orderId={orderId} setOrderId={setOrderId}/>
-      <OrderTable orderId={orderId} setOrderId={setOrderId}/>
+      <OrderTable setOrderId={setOrderId}/>
     </div>
   );
 }

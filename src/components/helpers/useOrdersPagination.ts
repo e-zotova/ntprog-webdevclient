@@ -6,9 +6,9 @@ const useOrdersPagination = (initialPage: number, orders: IOrder[]) => {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const indexOfLastOrder = currentPage * rowsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - rowsPerPage;
-  const currentOrders = orders.length > 0 ? orders.slice(indexOfFirstOrder, indexOfLastOrder) : [];
-
-  const totalPages = Math.ceil(orders.length / rowsPerPage);
+  const currentOrders =
+    orders?.length > 0 ? orders.slice(indexOfFirstOrder, indexOfLastOrder) : [];
+    const totalPages = Math.ceil((orders?.length ?? 0) / rowsPerPage);
 
   const nextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));

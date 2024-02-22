@@ -7,12 +7,12 @@ import { IOrder } from "../../types/types";
 import useOrdersPagination from "../../components/helpers/useOrdersPagination";
 import styles from "./orderTable.module.scss";
 
-const OrderTable = ({ orderId, setOrderId }: { orderId: number, setOrderId: (id: number) => void }) => {
+const OrderTable = ({ setOrderId }: { setOrderId: (id: number) => void }) => {
   const { orders } = useSelector(ordersSelect);
 
   // set orders in local storage
   useEffect(() => {
-    if (orders.length > 0) {
+    if (orders && orders.length > 0) {
       localStorage.setItem("orders", JSON.stringify(orders));
       const lastOrderIndex = orders.length - 1;
       setOrderId(orders[lastOrderIndex].id + 1);

@@ -11,6 +11,9 @@ const ordersSlice = createSlice({
   name: "@@orders",
   initialState,
   reducers: {
+    setOrders(state, action) {
+      state.orders = action.payload;
+    },
     addOrder: (state, action: PayloadAction<IOrder>) => {
       const newOrder: IOrder = action.payload;
       localStorage.setItem("orders", JSON.stringify(newOrder));
@@ -35,6 +38,6 @@ const ordersSlice = createSlice({
   },
 });
 
-export const { addOrder, updateOrder } = ordersSlice.actions;
+export const { setOrders, addOrder, updateOrder } = ordersSlice.actions;
 export const ordersReducer = ordersSlice.reducer;
 export const ordersSelect = (state: RootOrdersState) => state.orders;
